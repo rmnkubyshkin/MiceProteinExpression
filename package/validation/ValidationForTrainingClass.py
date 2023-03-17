@@ -56,8 +56,8 @@ class ValidationForTraining(Validation):
 
     def get_values_from_schema(self):
         log_file_path = "logs/training/validation/validation_for_training_logs.txt"
-        super().get_values_from_schema(log_file_path)
+        return super().get_values_from_schema(log_file_path)
 
     def validate_num_of_columns(self, num_of_columns):
-        pass
+        super().validate_num_of_columns(num_of_columns)
 

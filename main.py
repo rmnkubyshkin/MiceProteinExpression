@@ -10,6 +10,8 @@ def main():
     validation_object.create_bad_raw_data_folder()
     validation_object.get_values_from_schema()
     validation_object.convert_xls_to_csv()
+    file_name, file_number, column_names, num_of_columns = validation_object.get_values_from_schema()
+    validation_object.validate_num_of_columns(num_of_columns)
 
 
 if __name__ == "__main__":

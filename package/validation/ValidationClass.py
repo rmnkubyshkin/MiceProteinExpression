@@ -175,15 +175,11 @@ class Validation:
 
     def validate_num_of_columns(self, num_of_columns):
         self.logger.enter_into_method(inspect.stack()[0][3])
+
         try:
-            for file in listdir(self.good_raw_folder):
-                csv = pd.read_csv(self.good_raw_folder + file)
-                if csv.shape[1] != num_of_columns:
-                    move(self.good_raw_folder + file, self.bad_raw_folder)
-                    log_message = f'Invalid num of columns for the file, moved to {self.bad_raw_folder}'
-                    self.logger.write_message_from_method(log_message)
-                log_message = "Num of column validation completed!"
-                self.logger.write_message_from_method(log_message)
+            self.check_list_of_files_for_wrong_num_of_columns(num_of_columns)
+
+            self.logger.exited_from_method(inspect.stack()[0][3])
         except OSError as e:
             log_message = f'Error occurred while moving the file: {e}'
             self.logger.exception(log_message, e)
@@ -191,3 +187,25 @@ class Validation:
             log_message = f'Error occurred {e}'
             self.logger.exception(log_message, e)
             raise e
+
+    def check_list_of_files_for_wrong_num_of_columns(self, num_of_columns):
+        self.logger.enter_into_method(inspect.stack()[0][3])
+
+        for file_name in listdir(self.converted_folder):
+            self.check_file_for_wrong_num_of_columns(file_name, num_of_columns)
+
+        self.logger.exited_from_method(inspect.stack()[0][3])
+
+    def check_file_for_wrong_num_of_columns(self, file_name, num_of_columns):
+        self.logger.enter_into_method(inspect.stack()[0][3])
+
+        csv = pd.read_csv(self.converted_folder + file_name)
+        if csv.shape[1] != num_of_columns:
+            move(self.converted_folder + file_name, self.bad_raw_folder)
+            log_message = f'Invalid num of columns for the file, moved to {self.bad_raw_folder}'
+            self.logger.write_message_from_method(log_message)
+        else:
+            log_message = "Num of column validation completed!"
+            self.logger.write_message_from_method(log_message)
+            self.logger.exited_from_method(inspect.stack()[0][3])
+
