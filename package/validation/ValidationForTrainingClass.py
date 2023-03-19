@@ -27,11 +27,8 @@ class ValidationForTraining(Validation):
             self.batch_folder,
             self.converted_folder,
             self.bad_raw_data_folder,
-            self.good_raw_data_folder
+            self.good_raw_data_folder,
         )
-
-    def get_raw_data_folder(self):
-        return self.raw_data_folder
 
     def create_manual_regex(self):
         pass
@@ -55,9 +52,13 @@ class ValidationForTraining(Validation):
         super().delete_existing_bad_raw_data_folder(folder.training_validated_bad_raw_data_folder)
 
     def get_values_from_schema(self):
-        log_file_path = "logs/training/validation/validation_for_training_logs.txt"
-        return super().get_values_from_schema(log_file_path)
+        return super().get_values_from_schema()
 
-    def validate_num_of_columns(self, num_of_columns):
-        super().validate_num_of_columns(num_of_columns)
+    def validate_num_of_columns(self):
+        super().validate_num_of_columns()
 
+    def validate_file_name(self):
+        super().validate_file_name()
+
+    def validate_name_of_columns(self):
+        super().validate_name_of_columns()
