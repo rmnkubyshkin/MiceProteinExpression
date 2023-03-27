@@ -1,1 +1,6 @@
-validation_for_training_logs = 'logs/training/validation/validation_for_training_logs.txt'
+general_logs = 'logs/general.log'
+validation_for_training_logs = 'logs/training/validate/validation_for_training.log'
+transformation_for_training_logs = 'logs/training/transform/transformation_for_training.log'
+database_operations_for_training_logs = 'logs/training/database_operations/db_operations_for_training.log'
+schema_for_validation_logs = 'logs/schema/validation_schema.log'
+schema_for_training_logs = 'logs/schema/train_schema.log'
