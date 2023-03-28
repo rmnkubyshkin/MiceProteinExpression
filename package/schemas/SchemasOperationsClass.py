@@ -1,9 +1,7 @@
 import inspect
 import json
 
-from MainPredictionClass import MainPrediction
 
-
-class SchemaOperations(MainPrediction):
+class SchemaOperations:
     def __init__(self):
         pass

@@ -1,10 +1,9 @@
 import logging
 import os
 from package.logging.LoggerPathsConstantClass import general_logs
-from MainPredictionClass import MainPrediction
 
 
-class Logger(MainPrediction):
+class Logger:
 
     def __init__(self, log_type):
         self.log_type = log_type

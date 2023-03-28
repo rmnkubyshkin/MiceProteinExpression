@@ -19,7 +19,7 @@ class DataBaseOperationForTraining(DatabaseOperation):
                          self.transformed_folder,
                          self.bad_raw_folder,
                          self.database_folder,
-                         self.database_name
+                         self.database_name,
                          )
 
     def database_connection(self, database_name):
@@ -30,3 +30,6 @@ class DataBaseOperationForTraining(DatabaseOperation):
 
     def insert_data_in_database(self):
         return super().insert_data_in_database()
+
+    def write_data_into_csv(self):
+        return super().write_data_into_csv()

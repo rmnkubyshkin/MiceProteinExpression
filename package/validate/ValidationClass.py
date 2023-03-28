@@ -6,11 +6,11 @@ from shutil import rmtree, move
 import pandas as pd
 import inspect
 
-from MainPredictionClass import MainPrediction
+
 from package.schemas.ValidationSchemaOperationsClass import TrainingSchemaOperations
 
 
-class Validation(MainPrediction):
+class Validation:
 
     def __init__(self,
                  logger,

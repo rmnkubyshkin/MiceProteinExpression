@@ -6,10 +6,8 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder
 
-from MainPredictionClass import MainPrediction
 
-
-class Transformation(MainPrediction):
+class Transformation:
     def __init__(self, logger, good_raw_data_folder, transformed_data_folder):
         self.logger = logger
         self.good_raw_data_folder = good_raw_data_folder

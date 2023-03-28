@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#MiceProteinExpression
+.db
+database_data_for_training.csv
