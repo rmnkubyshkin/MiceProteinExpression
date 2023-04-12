@@ -1,6 +1,7 @@
 import inspect
 import os
 import shutil
+from os.path import isdir
 
 from pickle4 import pickle
 
@@ -19,11 +20,12 @@ class FileOperation:
         self.file_operation_logger.enter_into_method(inspect.stack()[0][3])
 
         try:
-            if os.path.isdir(self.model_folder):
+            path = os.path.join(self.model_folder, filename)
+            if os.path.isdir(path):
                 shutil.rmtree(self.model_folder)
-            os.makedirs(self.model_folder)
+            os.makedirs(path)
 
-            with open(f'{self.model_folder}/{filename}.sav', 'wb') as f:
+            with open(f'{path}/{filename}.sav', 'wb') as f:
                 pickle.dump(model, f)
 
                 log_message = f'Model File {filename} saved.'
@@ -54,3 +56,45 @@ class FileOperation:
                           f'Exception message: {e}'
             self.file_operation_logger.write_message_from_method(log_message)
             raise Exception()
+
+    def create_data_folder(self, data_folder):
+        try:
+            self.file_operation_logger.enter_into_method(inspect.stack()[0][3])
+
+            self.__create_directory_if_not_exist(data_folder)
+
+            self.file_operation_logger.exited_from_method(inspect.stack()[0][3])
+        except OSError as e:
+            log_message = f'Error while creating directory {e}'
+            self.file_operation_logger.exception(log_message, e)
+            raise e
+
+    def __create_directory_if_not_exist(self, data_folder):
+        self.file_operation_logger.enter_into_method(inspect.stack()[0][3])
+
+        if not isdir(data_folder):
+            os.makedirs(data_folder)
+            self.file_operation_logger.write_message_from_method(f'Folder: {data_folder} create successful!')
+
+        self.file_operation_logger.exited_from_method(inspect.stack()[0][3])
+
+    def delete_existing_data_folder(self, data_folder):
+        try:
+            self.file_operation_logger.enter_into_method(inspect.stack()[0][3])
+
+            self._delete_directory_if_exist(data_folder)
+
+            self.file_operation_logger.exited_from_method(inspect.stack()[0][3])
+        except OSError as e:
+            log_message = f'Error while creating directory {e}'
+            self.file_operation_logger.exception(log_message, e)
+            raise e
+
+    def _delete_directory_if_exist(self, data_folder):
+        self.file_operation_logger.enter_into_method(inspect.stack()[0][3])
+
+        if isdir(data_folder):
+            shutil.rmtree(data_folder)
+            self.file_operation_logger.write_message_from_method(f'Folder: {data_folder} delete successful!')
+
+        self.file_operation_logger.exited_from_method(inspect.stack()[0][3])

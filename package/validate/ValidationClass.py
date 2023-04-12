@@ -6,7 +6,7 @@ from shutil import rmtree, move
 import pandas as pd
 import inspect
 
-
+from package.utils.FileOperationClass import FileOperation
 from package.schemas.ValidationSchemaOperationsClass import TrainingSchemaOperations
 
 
@@ -26,16 +26,19 @@ class Validation:
         self.batch_folder = raw_data_folder
         self.converted_folder = converted_folder
         self.schema = TrainingSchemaOperations()
+        self.file_operation = FileOperation()
 
     def manual_regex_creation(self):
         return "['Data']+['\_'']+['Cortex']+['\_'']+['Nuclear']+['\_'']+[\#]+([0-9]|[1-9][0-9]|[1-9][0-9][0-9])+\.csv"
 
     def convert_xls_to_csv(self):
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
-        self.delete_existing_data_folder(self.converted_folder)
-        self.create_data_folder(self.converted_folder)
-        files_to_validate = [f for f in listdir(self.batch_folder)]
+        self.file_operation.delete_existing_data_folder(self.converted_folder)
+        self.file_operation.create_data_folder(self.converted_folder)
+
         try:
+            files_to_validate = [f for f in listdir(self.batch_folder)]
+
             for filename in files_to_validate:
                 read_file = pd.read_excel(self.batch_folder + filename)
                 split_filename_at_dot = split('.xls', filename)
@@ -52,11 +55,40 @@ class Validation:
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
 
         try:
-            self.delete_existing_data_folder(self.bad_raw_folder)
-            self.delete_existing_data_folder(self.good_raw_folder)
-            self.create_data_folder(self.good_raw_folder)
-            self.create_data_folder(self.bad_raw_folder)
-            self.check_list_of_files_for_wrong_num_of_columns()
+            self.file_operation.delete_existing_data_folder(self.bad_raw_folder)
+            self.file_operation.delete_existing_data_folder(self.good_raw_folder)
+            self.file_operation.create_data_folder(self.good_raw_folder)
+            self.file_operation.create_data_folder(self.bad_raw_folder)
+            self.__check_list_of_files_for_wrong_num_of_columns()
+
+            self.validation_logger.exited_from_method(inspect.stack()[0][3])
+        except OSError as e:
+            log_message = f'Error occurred while moving the file: {e}'
+            self.validation_logger.exception(log_message, e)
+        except Exception as e:
+            log_message = f'Error occurred {e}'
+            self.validation_logger.exception(log_message, e)
+            raise e
+
+    def validate_missing_all_column_values_in_folder(self):
+        try:
+            self.validation_logger.enter_into_method(inspect.stack()[0][3])
+
+            for file in listdir(self.good_raw_folder):
+                self.__validate_missing_all_column_values_in_file(file)
+        except OSError as e:
+            log_message = f'Error occurred while moving the file: {e}'
+            self.validation_logger.exception(log_message, e)
+        except Exception as e:
+            log_message = f'Error occurred {e}'
+            self.validation_logger.exception(log_message, e)
+            raise e
+
+    def validate_name_of_columns(self):
+        try:
+            self.validation_logger.enter_into_method(inspect.stack()[0][3])
+
+            self.__check_list_of_files_for_wrong_name_of_columns()
 
             self.validation_logger.exited_from_method(inspect.stack()[0][3])
         except OSError as e:
@@ -71,40 +103,32 @@ class Validation:
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
 
         files_to_validate = [f for f in listdir(self.good_raw_folder)]
-        self.check_list_of_files_for_wrong_file_name(files_to_validate)
+        self.__check_list_of_files_for_wrong_file_name(files_to_validate)
 
         self.validation_logger.exited_from_method(inspect.stack()[0][3])
 
-    def validate_missing_all_column_values_in_folder(self):
+    def __check_list_of_files_for_wrong_num_of_columns(self):
+        self.validation_logger.enter_into_method(inspect.stack()[0][3])
+
+        for file_name in listdir(self.converted_folder):
+            self.__check_file_for_wrong_num_of_columns(file_name)
+
+        self.validation_logger.exited_from_method(inspect.stack()[0][3])
+
+    def __check_list_of_files_for_wrong_file_name(self, files_to_validate):
+        self.validation_logger.enter_into_method(inspect.stack()[0][3])
+
         try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            for file in listdir(self.good_raw_folder):
-                self.validate_missing_all_column_values_in_file(file)
-        except OSError as e:
-            log_message = f'Error occurred while moving the file: {e}'
-            self.validation_logger.exception(log_message, e)
-        except Exception as e:
-            log_message = f'Error occurred {e}'
-            self.validation_logger.exception(log_message, e)
-            raise e
-
-    def validate_name_of_columns(self):
-        try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            self.check_list_of_files_for_wrong_name_of_columns()
+            for file_name in files_to_validate:
+                self.__check_file_for_equal_of_regex(file_name)
 
             self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except OSError as e:
-            log_message = f'Error occurred while moving the file: {e}'
-            self.validation_logger.exception(log_message, e)
         except Exception as e:
-            log_message = f'Error occurred {e}'
-            self.validation_logger.exception(log_message, e)
+            log_message = f'Error occurred while validating file: {e}'
+            self.validation_logger.write_message_from_method(log_message)
             raise e
 
-    def validate_missing_all_column_values_in_file(self, file):
+    def __validate_missing_all_column_values_in_file(self, file):
         file_from_good_folder = pd.read_csv(self.good_raw_folder + file)
         count = 0
         for columns in file_from_good_folder:
@@ -120,15 +144,15 @@ class Validation:
         if count == 0:
             file_from_good_folder.to_csv(self.good_raw_folder + file, index=None, header=True)
 
-    def check_list_of_files_for_wrong_num_of_columns(self):
+    def __check_list_of_files_for_wrong_name_of_columns(self):
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
 
-        for file_name in listdir(self.converted_folder):
-            self.check_file_for_wrong_num_of_columns(file_name)
+        for file_name in listdir(self.good_raw_folder):
+            self.__check_file_for_wrong_name_of_columns(file_name)
 
         self.validation_logger.exited_from_method(inspect.stack()[0][3])
 
-    def check_file_for_wrong_num_of_columns(self, file_name):
+    def __check_file_for_wrong_num_of_columns(self, file_name):
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
         values_from_schema = self.schema.get_values_from_schema()
         _csv = pd.read_csv(self.converted_folder + file_name)
@@ -143,20 +167,7 @@ class Validation:
 
         self.validation_logger.exited_from_method(inspect.stack()[0][3])
 
-    def check_list_of_files_for_wrong_file_name(self, files_to_validate):
-        self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-        try:
-            for file_name in files_to_validate:
-                self.check_file_for_equal_of_regex(file_name)
-
-            self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except Exception as e:
-            log_message = f'Error occurred while validating file: {e}'
-            self.validation_logger.write_message_from_method(log_message)
-            raise e
-
-    def check_file_for_equal_of_regex(self, file_name):
+    def __check_file_for_equal_of_regex(self, file_name):
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
 
         regex = self.manual_regex_creation()
@@ -170,15 +181,7 @@ class Validation:
 
         self.validation_logger.exited_from_method(inspect.stack()[0][3])
 
-    def check_list_of_files_for_wrong_name_of_columns(self):
-        self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-        for file_name in listdir(self.good_raw_folder):
-            self.check_file_for_wrong_name_of_columns(file_name)
-
-        self.validation_logger.exited_from_method(inspect.stack()[0][3])
-
-    def check_file_for_wrong_name_of_columns(self, file_name):
+    def __check_file_for_wrong_name_of_columns(self, file_name):
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
 
         values_from_schema = self.schema.get_values_from_schema()
@@ -195,83 +198,5 @@ class Validation:
         self.validation_logger.write_message_from_method(log_message)
         self.validation_logger.exited_from_method(inspect.stack()[0][3])
 
-    def delete_existing_data_folder(self, data_folder):
-        try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            self.delete_directory_if_exist(data_folder)
-
-            self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except OSError as e:
-            log_message = f'Error while creating directory {e}'
-            self.validation_logger.exception(log_message, e)
-            raise e
-
-    """
-    def delete_existing_bad_raw_data_folder(self):
-        try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            self.delete_directory_if_exist(self.bad_raw_folder)
-
-            self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except OSError as e:
-            log_message = f'Error while deleting directory {e}'
-            self.validation_logger.exception(log_message, e)
-            raise e
-
-    def delete_existing_converted_raw_data_folder(self):
-        try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            self.delete_directory_if_exist(self.converted_folder)
-
-            self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except OSError as e:
-            log_message = f'Error while deleting directory {e}'
-            self.validation_logger.exception(log_message, e)
-            raise e
-
-    def create_bad_raw_data_folder(self):
-        try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            self.create_directory_if_not_exist(self.bad_raw_folder)
-
-            self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except OSError as e:
-            log_message = f'Error while creating directory {e}'
-            self.validation_logger.exception(log_message, e)
-            raise e
-"""
-    def create_data_folder(self, data_folder):
-        try:
-            self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-            self.create_directory_if_not_exist(data_folder)
-
-            self.validation_logger.exited_from_method(inspect.stack()[0][3])
-        except OSError as e:
-            log_message = f'Error while creating directory {e}'
-            self.validation_logger.exception(log_message, e)
-            raise e
-
-    def create_directory_if_not_exist(self, data_folder):
-        self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-        if not isdir(data_folder):
-            makedirs(data_folder)
-            self.validation_logger.write_message_from_method(f'Folder: {data_folder} create successful!')
-
-        self.validation_logger.exited_from_method(inspect.stack()[0][3])
-
-    def delete_directory_if_exist(self, data_folder):
-        self.validation_logger.enter_into_method(inspect.stack()[0][3])
-
-        if isdir(data_folder):
-            rmtree(data_folder)
-            self.validation_logger.write_message_from_method(f'Folder: {data_folder} delete successful!')
-
-        self.validation_logger.exited_from_method(inspect.stack()[0][3])
 
 

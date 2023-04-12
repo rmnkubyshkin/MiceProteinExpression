@@ -1,39 +1,49 @@
-from package.utils.FileOperationClass import FileOperation
-from package.validate.ValidationForTrainingClass import ValidationForTraining
-from package.transform.TransformationForTrainingClass import TransformationForTraining
-from package.database.DatabaseOperationForTrainingClass import DataBaseOperationForTraining
-from package.load.TrainingDataLoaderClass import TrainingDataLoader
-from package.preprocess.PreprocessingClass import Preprocessing
+import os
+from wsgiref import simple_server
 
-def main():
-    validation = ValidationForTraining()
-    transformation = TransformationForTraining()
-    database_operation = DataBaseOperationForTraining()
-    loader = TrainingDataLoader()
-    preprocessor = Preprocessing()
-    utils = FileOperation()
+from flask import Response, render_template, Flask
+from flask_cors import cross_origin, CORS
+import flask_monitoringdashboard as dashboard
+from predict import Predict
+from training import Training
 
-    validation.convert_xls_to_csv()
-    validation.validate_num_of_columns()
-    validation.validate_file_name()
-    validation.validate_missing_all_column_values_in_folder()
-    validation.validate_name_of_columns()
+app = Flask(__name__)
+dashboard.bind(app)
+CORS(app)
 
-    transformation.encode_class_column()
-    transformation.impute_values()
-    database_operation.create_table_in_database()
-    database_operation.insert_data_in_database()
-    database_operation.write_data_into_csv()
-    loader.read_data_from_csv()
 
-    X, y = preprocessor.split_features_and_label()
-    zero_mean_columns = preprocessor.get_columns_with_zero_std_deviation(X)
-    if zero_mean_columns == 0:
-        X = preprocessor.remove_columns_from_data(zero_mean_columns)
-    model = []
-    utils.save_model(model, "model")
-    model = utils.load_model("model")
+@app.route("/", methods=['GET'])
+@cross_origin()
+def home():
+    return render_template('index.html')
 
+
+@app.route("/train", methods=['POST'])
+@cross_origin()
+def train():
+    try:
+        training_model = Training()
+        training_model.train()
+    except ValueError as e:
+        return Response(f'Error occurred! {e}')
+    except KeyError as e:
+        return Response(f'Error occurred! {e}')
+    except Exception as e:
+        return Response(f'Error occurred! {e}')
+    return Response("Training successful!")
+
+
+@app.route("/predict", methods=['POST'])
+@cross_origin()
+def predict():
+    prediction_model = Predict()
+    prediction_model.predict()
+
+
+port = int(os.getenv("PORT", 5000))
 
 if __name__ == "__main__":
-    main()
+    host = "0.0.0.0"
+    httpd = simple_server.make_server(host, port, app)
+    httpd.serve_forever()
+
