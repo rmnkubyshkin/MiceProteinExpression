@@ -1,14 +1,11 @@
-from os import makedirs, listdir
-from os.path import isdir
+from os import listdir
 from re import split, match
-import json
-from shutil import rmtree, move
+from shutil import move
 import pandas as pd
 import inspect
 
 from package.utils.FileOperationClass import FileOperation
-from package.schemas.ValidationSchemaOperationsClass import TrainingSchemaOperations
-
+from package.schemas.ValidationSchemaOperationsClass import ValidationSchemaOperations
 
 class Validation:
 
@@ -25,8 +22,8 @@ class Validation:
         self.good_raw_folder = good_raw_folder
         self.batch_folder = raw_data_folder
         self.converted_folder = converted_folder
-        self.schema = TrainingSchemaOperations()
         self.file_operation = FileOperation()
+        self.schema = ValidationSchemaOperations()
 
     def manual_regex_creation(self):
         return "['Data']+['\_'']+['Cortex']+['\_'']+['Nuclear']+['\_'']+[\#]+([0-9]|[1-9][0-9]|[1-9][0-9][0-9])+\.csv"
@@ -35,7 +32,6 @@ class Validation:
         self.validation_logger.enter_into_method(inspect.stack()[0][3])
         self.file_operation.delete_existing_data_folder(self.converted_folder)
         self.file_operation.create_data_folder(self.converted_folder)
-
         try:
             files_to_validate = [f for f in listdir(self.batch_folder)]
 

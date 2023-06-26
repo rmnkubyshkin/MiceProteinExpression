@@ -5,7 +5,7 @@ import sqlite3
 from os import listdir
 
 
-from package.schemas.TrainingSchemaOperationsClass import TrainingSchemaOperations
+from package.schemas.TrainingAndPredictionSchemaOperationsClass import TrainingAndPredictionSchemaOperations
 from package.utils.FileOperationClass import FileOperation
 from package.utils.FolderConstantsClass import training_input_filename, training_database_folder
 
@@ -18,13 +18,15 @@ class DatabaseOperation:
                  bad_raw_folder,
                  database_folder,
                  database_name,
+                 output_file
                  ):
         self.database_logger = logger
         self.bad_raw_folder = bad_raw_folder
         self.transformed_folder = transformed_folder
         self.database_folder = database_folder
         self.database_name = database_name
-        self.schema_training = TrainingSchemaOperations()
+        self.output_file = output_file
+        self.schema_training = TrainingAndPredictionSchemaOperations()
         self.file_operation = FileOperation()
 
     def database_connection(self, database_name):
@@ -47,10 +49,9 @@ class DatabaseOperation:
             raise e
         return database_connection
 
-    def create_table_in_database(self):
+    def create_table_in_database(self, database_connection):
         try:
             column_names = self.schema_training.get_values_from_schema()[0]
-            database_connection = self.database_connection(self.database_name)
             cursor = database_connection.cursor()
             cursor.execute(
                 "SELECT count(name) FROM sqlite_master WHERE type = 'table' AND name = 'transformed_data'"
@@ -84,7 +85,7 @@ class DatabaseOperation:
     def write_data_into_csv(self):
         try:
             self.database_logger.enter_into_method(inspect.stack()[0][3])
-            self.output_file = training_input_filename
+            #self.output_file = training_input_filename
             connection = self.database_connection(self.database_name)
             sql_select = "SELECT * FROM transformed_data"
             cursor = connection.cursor()

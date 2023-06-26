@@ -1,15 +1,15 @@
 import inspect
 import json
 
-from package.logging.LoggerPathsConstantClass import schema_for_validation_logs
+from package.logging.LoggerPathsConstantClass import schema_for_training_and_prediction_logs
 from package.logging.LoggingClass import Logger
 from package.schemas.SchemasOperationsClass import SchemaOperations
 
 
-class TrainingSchemaOperations(SchemaOperations):
+class ValidationSchemaOperations(SchemaOperations):
 
     def __init__(self):
-        self.schema_logger = Logger(schema_for_validation_logs)
+        self.schema_logger = Logger(schema_for_training_and_prediction_logs)
         self.schema_path = "package/schemas/schema_validation.json"
 
     def get_values_from_schema(self):

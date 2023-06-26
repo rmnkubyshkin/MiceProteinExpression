@@ -44,7 +44,7 @@ class FileOperation:
         log_message = 'Entered the load_model method of the FileOperation class'
         self.file_operation_logger.write_message_from_method(log_message)
         try:
-            full_file_name = f'{self.model_folder}/{filename}.sav'
+            full_file_name = f'{self.model_folder}{filename}/{filename}.sav'
             with open(full_file_name, 'rb') as f:
                 log_message = f'Model File  {filename} loaded. '\
                               f'Exited the load_model method of the ModelFinder class'
@@ -67,6 +67,32 @@ class FileOperation:
         except OSError as e:
             log_message = f'Error while creating directory {e}'
             self.file_operation_logger.exception(log_message, e)
+            raise e
+
+    def find_correct_model_file(self, cluster_number):
+        self.file_operation_logger.enter_into_method(inspect.stack()[0][3])
+
+        try:
+            self.cluster_number = cluster_number
+            self.list_of_files = os.listdir(self.model_folder)
+            for self.file in self.list_of_files:
+                try:
+                    if self.file.index(str(self.cluster_number)) != -1:
+                        self.model_name = self.file
+                except (Exception,):
+                    continue
+
+                self.model_name = self.model_name.split('.')[0]
+
+                self.file_operation_logger.exited_from_method(inspect.stack()[0][3])
+                return self.model_name
+
+        except (Exception,) as e:
+            log_message = 'Exception occurred in find_correct_model_file method of the ModelFinder class. ' \
+                          'Exception message:  ' + str(e)
+            self.file_operation_logger.exception(log_message, e)
+            log_message = 'Exited the find_correct_model_file method of the ModelFinder class with Failure'
+            self.file_operation_logger.exited_from_method(log_message)
             raise e
 
     def __create_directory_if_not_exist(self, data_folder):

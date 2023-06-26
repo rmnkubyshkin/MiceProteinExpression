@@ -1,16 +1,11 @@
 import inspect
-import pandas as pd
-
-from package.logging.LoggerPathsConstantClass import data_preprocess_logs
-from package.logging.LoggingClass import Logger
-from package.utils.FolderConstantsClass import training_input_filename, training_database_folder
 
 
 class Preprocessing:
 
-    def __init__(self):
-        self.preprocess_logger = Logger(data_preprocess_logs)
-        self.data = pd.read_csv(training_database_folder + training_input_filename)
+    def __init__(self, logger, data):
+        self.preprocess_logger = logger
+        self.data = data
 
     def split_features_and_label(self):
         self.preprocess_logger.enter_into_method(inspect.stack()[0][3])

@@ -24,24 +24,6 @@ class ValidationForTraining(Validation):
             self.good_raw_data_folder,
         )
 
-    def create_good_raw_data_folder(self):
-        super().create_good_raw_data_folder()
-
-    def create_bad_raw_data_folder(self):
-        super().create_bad_raw_data_folder()
-
-    def delete_existing_good_raw_data_folder(self):
-        super().delete_existing_good_raw_data_folder()
-
-    def delete_existing_bad_raw_data_folder(self):
-        super().delete_existing_bad_raw_data_folder()
-
-    def delete_existing_converted_raw_data_folder(self):
-        super().delete_existing_converted_raw_data_folder()
-
-    def get_values_from_schema(self):
-        return super().get_values_from_schema()
-
     def validate_num_of_columns(self):
         super().validate_num_of_columns()
 

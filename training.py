@@ -4,12 +4,11 @@ from package.logging.LoggingClass import Logger
 from package.model.ModelFinder import ModelFinder
 from package.preprocess.ClusteringClass import KMeansClustering
 from package.utils.FileOperationClass import FileOperation
-from package.utils.FolderConstantsClass import training_input_filename
 from package.validate.ValidationForTrainingClass import ValidationForTraining
 from package.transform.TransformationForTrainingClass import TransformationForTraining
 from package.database.DatabaseOperationForTrainingClass import DataBaseOperationForTraining
 from package.load.TrainingDataLoaderClass import TrainingDataLoader
-from package.preprocess.PreprocessingClass import Preprocessing
+from package.preprocess.TrainingPreprocessingClass import TrainingPreprocessing
 from package.logging.LoggerPathsConstantClass import general_logs
 import inspect
 
@@ -64,7 +63,7 @@ class Training:
         return x_test, x_train, y_test, y_train
 
     def __preprocessing_data__(self):
-        self.preprocessor = Preprocessing()
+        self.preprocessor = TrainingPreprocessing()
         self.model_finder = ModelFinder()
         self.cluster = KMeansClustering()
         X, y = self.preprocessor.split_features_and_label()
@@ -94,3 +93,7 @@ class Training:
         self.validation.validate_file_name()
         self.validation.validate_missing_all_column_values_in_folder()
         self.validation.validate_name_of_columns()
+
+
+tr = Training()
+tr.train()

@@ -2,7 +2,6 @@ import inspect
 
 from kneed import KneeLocator
 from sklearn.cluster import KMeans
-import numpy as np
 from package.logging.LoggerPathsConstantClass import data_clustering_logs
 from package.logging.LoggingClass import Logger
 from package.utils.FileOperationClass import FileOperation

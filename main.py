@@ -4,7 +4,7 @@ from wsgiref import simple_server
 from flask import Response, render_template, Flask
 from flask_cors import cross_origin, CORS
 import flask_monitoringdashboard as dashboard
-from predict import Predict
+from prediction import Prediction
 from training import Training
 
 app = Flask(__name__)
@@ -36,8 +36,16 @@ def train():
 @app.route("/predict", methods=['POST'])
 @cross_origin()
 def predict():
-    prediction_model = Predict()
-    prediction_model.predict()
+    try:
+        prediction_model = Prediction()
+        prediction_model.predict()
+    except ValueError as e:
+        return Response(f'Error occurred! {e}')
+    except KeyError as e:
+        return Response(f'Error occurred! {e}')
+    except Exception as e:
+        return Response(f'Error occurred! {e}')
+    return Response("Prediction successful!")
 
 
 port = int(os.getenv("PORT", 5000))
